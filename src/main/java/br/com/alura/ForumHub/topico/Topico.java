@@ -1,6 +1,7 @@
 package br.com.alura.ForumHub.topico;
 
 import jakarta.persistence.*;
+import jakarta.validation.Valid;
 
 import java.util.Objects;
 
@@ -17,8 +18,10 @@ public class Topico {
     private String mensagem;
     private String autor;
     private String curso;
+    private Boolean status;
 
     public Topico(DadosCadastroTopico dados) {
+        this.status = true;
         this.titulo = dados.titulo();
         this.mensagem = dados.mensagem();
         this.autor = dados.autor();
@@ -28,7 +31,8 @@ public class Topico {
     public Topico() {
     }
 
-    public Topico(Long id, String titulo, String mensagem, String autor, String curso) {
+    public Topico(Long id, String titulo, String mensagem, String autor, String curso, Boolean status) {
+        this.status = status;
         this.id = id;
         this.titulo = titulo;
         this.mensagem = mensagem;
@@ -76,6 +80,14 @@ public class Topico {
         this.curso = curso;
     }
 
+    public Boolean getStatus() {
+        return status;
+    }
+
+    public void setStatus(Boolean status) {
+        this.status = status;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -87,5 +99,25 @@ public class Topico {
     @Override
     public int hashCode() {
         return Objects.hashCode(id);
+    }
+
+    public void atualizarInformacoes(@Valid DadosAtualizacaoTopico dados) {
+        if (dados.titulo() != null) {
+            this.titulo = dados.titulo();
+        }
+        if (dados.mensagem() != null) {
+            this.mensagem = dados.mensagem();
+        }
+        if (dados.autor() != null) {
+            this.autor = dados.autor();
+        }
+        if (dados.curso() != null) {
+            this.curso = dados.curso();
+        }
+
+    }
+
+    public void excluir() {
+        this.status =false;
     }
 }
