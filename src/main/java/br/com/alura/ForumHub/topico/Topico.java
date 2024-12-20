@@ -3,6 +3,7 @@ package br.com.alura.ForumHub.topico;
 import jakarta.persistence.*;
 import jakarta.validation.Valid;
 
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 @Table(name = "topicos")
@@ -19,6 +20,7 @@ public class Topico {
     private String autor;
     private String curso;
     private Boolean status;
+    private LocalDateTime dataCriacao;
 
     public Topico(DadosCadastroTopico dados) {
         this.status = true;
@@ -26,18 +28,20 @@ public class Topico {
         this.mensagem = dados.mensagem();
         this.autor = dados.autor();
         this.curso = dados.curso();
+        this.dataCriacao = dados.data();
     }
 
     public Topico() {
     }
 
-    public Topico(Long id, String titulo, String mensagem, String autor, String curso, Boolean status) {
+    public Topico(Long id, String titulo, String mensagem, String autor, String curso, Boolean status, LocalDateTime data) {
         this.status = status;
         this.id = id;
         this.titulo = titulo;
         this.mensagem = mensagem;
         this.autor = autor;
         this.curso = curso;
+        this.dataCriacao = data;
     }
 
     public Long getId() {
@@ -86,6 +90,14 @@ public class Topico {
 
     public void setStatus(Boolean status) {
         this.status = status;
+    }
+
+    public LocalDateTime getDataCriacao() {
+        return dataCriacao;
+    }
+
+    public void setDataCriacao(LocalDateTime data) {
+        this.dataCriacao = data;
     }
 
     @Override
