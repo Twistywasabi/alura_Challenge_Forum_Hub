@@ -38,15 +38,34 @@ public class TopicoController {
     @PutMapping
     @Transactional
     public void atualizar(@RequestBody @Valid DadosAtualizacaoTopico dados) {
-        var topico = repository.getReferenceById(dados.id());
-        topico.atualizarInformacoes(dados);
+        Optional<Topico> topicoExiste =  repository.findById(dados.id());
+        if(topicoExiste.isPresent()){
+            var topico = repository.getReferenceById(dados.id());
+            topico.atualizarInformacoes(dados);
+        } else {
+            System.out.println("Não existe um tópico com esse ID, tente outro.");
+        }
+
     }
 
     @DeleteMapping("/{id}")
     @Transactional
     public void excluir(@PathVariable Long id) {
+        Optional<Topico> topicoExiste =  repository.findById(id);
+        if(topicoExiste.isPresent()){
+
         var topico = repository.getReferenceById(id);
         topico.excluir();
+        } else {
+            System.out.println("Nada foi excluído, não existe um tópico com esse ID, tente outro.");
+        }
     }
+
+    @GetMapping("/{id}")
+    public DadosDetalhamentoTopico detalhamentoTopico(@PathVariable Long id) {
+        var topico = repository.getReferenceById(id);
+        return new DadosDetalhamentoTopico(topico);
+    }
+
 
 }
