@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("topicos")
@@ -21,18 +22,22 @@ public class TopicoController {
     @PostMapping
     @Transactional
     public void cadastrar(@RequestBody @Valid DadosCadastroTopico dados) {
-
-        repository.save(new Topico(dados));
+        Optional<Topico> topicoJaRegistrado = repository.findByTituloAndMensagemContainingIgnoreCase(dados.titulo(), dados.mensagem());
+        if (topicoJaRegistrado.isPresent()) {
+            System.out.println("Já existe tópico com mesmo título e mensagem, cadastre outro título ou mensagem");
+        } else {
+            repository.save(new Topico(dados));
+        }
     }
 
     @GetMapping
-    public Page<DadosListagemTopico> listar(@PageableDefault(size = 10, sort = {"titulo"}) Pageable paginacao) {
+    public Page<DadosListagemTopico> listar(@PageableDefault(size = 10, sort = {"dataCriacao"}) Pageable paginacao) {
         return repository.findAllByStatusTrue(paginacao).map(DadosListagemTopico::new);
     }
 
     @PutMapping
     @Transactional
-    public void atualizar(@RequestBody @Valid DadosAtualizacaoTopico dados){
+    public void atualizar(@RequestBody @Valid DadosAtualizacaoTopico dados) {
         var topico = repository.getReferenceById(dados.id());
         topico.atualizarInformacoes(dados);
     }

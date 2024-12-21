@@ -20,6 +20,7 @@ public class Topico {
     private String autor;
     private String curso;
     private Boolean status;
+    @Column(name = "data_criacao")
     private LocalDateTime dataCriacao;
 
     public Topico(DadosCadastroTopico dados) {
@@ -126,10 +127,26 @@ public class Topico {
         if (dados.curso() != null) {
             this.curso = dados.curso();
         }
+        if (dados.data() != null) {
+            this.dataCriacao = dados.data();
+        }
 
     }
 
     public void excluir() {
-        this.status =false;
+        this.status = false;
+    }
+
+    @Override
+    public String toString() {
+        return "Topico{" +
+                "id=" + id +
+                ", titulo='" + titulo + '\'' +
+                ", mensagem='" + mensagem + '\'' +
+                ", autor='" + autor + '\'' +
+                ", curso='" + curso + '\'' +
+                ", status=" + status +
+                ", dataCriacao=" + dataCriacao +
+                '}';
     }
 }
