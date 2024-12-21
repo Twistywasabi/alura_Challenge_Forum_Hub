@@ -6,8 +6,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.List;
 import java.util.Optional;
@@ -21,51 +23,65 @@ public class TopicoController {
 
     @PostMapping
     @Transactional
-    public void cadastrar(@RequestBody @Valid DadosCadastroTopico dados) {
+    public ResponseEntity cadastrar(@RequestBody @Valid DadosCadastroTopico dados, UriComponentsBuilder uriBuilder) {
         Optional<Topico> topicoJaRegistrado = repository.findByTituloAndMensagemContainingIgnoreCase(dados.titulo(), dados.mensagem());
         if (topicoJaRegistrado.isPresent()) {
             System.out.println("Já existe tópico com mesmo título e mensagem, cadastre outro título ou mensagem");
+            return ResponseEntity.badRequest().build();
         } else {
-            repository.save(new Topico(dados));
+            var topico = new Topico(dados);
+            repository.save(topico);
+            var uri = uriBuilder.path("/topicos/{id}").buildAndExpand(topico.getId()).toUri();
+            return ResponseEntity.created(uri).body(new DadosDetalhamentoTopico(topico));
         }
     }
 
     @GetMapping
-    public Page<DadosListagemTopico> listar(@PageableDefault(size = 10, sort = {"dataCriacao"}) Pageable paginacao) {
-        return repository.findAllByStatusTrue(paginacao).map(DadosListagemTopico::new);
+    public ResponseEntity<Page<DadosListagemTopico>> listar(@PageableDefault(size = 10, sort = {"dataCriacao"}) Pageable paginacao) {
+        var page = repository.findAllByStatusTrue(paginacao).map(DadosListagemTopico::new);
+        return ResponseEntity.ok(page);
     }
 
     @PutMapping
     @Transactional
-    public void atualizar(@RequestBody @Valid DadosAtualizacaoTopico dados) {
-        Optional<Topico> topicoExiste =  repository.findById(dados.id());
-        if(topicoExiste.isPresent()){
+    public ResponseEntity atualizar(@RequestBody @Valid DadosAtualizacaoTopico dados) {
+        Optional<Topico> topicoExiste = repository.findById(dados.id());
+        if (topicoExiste.isPresent()) {
             var topico = repository.getReferenceById(dados.id());
             topico.atualizarInformacoes(dados);
+            return ResponseEntity.ok(new DadosDetalhamentoTopico(topico));
         } else {
             System.out.println("Não existe um tópico com esse ID, tente outro.");
+            return ResponseEntity.notFound().build();
         }
 
     }
 
     @DeleteMapping("/{id}")
     @Transactional
-    public void excluir(@PathVariable Long id) {
-        Optional<Topico> topicoExiste =  repository.findById(id);
-        if(topicoExiste.isPresent()){
-
-        var topico = repository.getReferenceById(id);
-        topico.excluir();
+    public ResponseEntity excluir(@PathVariable Long id) {
+        Optional<Topico> topicoExiste = repository.findById(id);
+        if (topicoExiste.isPresent()) {
+            var topico = repository.getReferenceById(id);
+            topico.excluir();
+            return ResponseEntity.noContent().build();
         } else {
             System.out.println("Nada foi excluído, não existe um tópico com esse ID, tente outro.");
+            return ResponseEntity.notFound().build();
         }
     }
 
     @GetMapping("/{id}")
-    public DadosDetalhamentoTopico detalhamentoTopico(@PathVariable Long id) {
-        var topico = repository.getReferenceById(id);
-        return new DadosDetalhamentoTopico(topico);
-    }
+    public ResponseEntity detalhamentoTopico(@PathVariable Long id) {
 
+        Optional<Topico> topicoExiste = repository.findById(id);
+        if (topicoExiste.isPresent()) {
+            var topico = repository.getReferenceById(id);
+            return ResponseEntity.ok(new DadosDetalhamentoTopico(topico));
+        } else {
+            System.out.println("Nada foi excluído, não existe um tópico com esse ID, tente outro.");
+            return ResponseEntity.notFound().build();
+        }
+    }
 
 }
