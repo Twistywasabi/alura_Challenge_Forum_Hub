@@ -26,8 +26,7 @@ public class TopicoController {
     public ResponseEntity cadastrar(@RequestBody @Valid DadosCadastroTopico dados, UriComponentsBuilder uriBuilder) {
         Optional<Topico> topicoJaRegistrado = repository.findByTituloAndMensagemContainingIgnoreCase(dados.titulo(), dados.mensagem());
         if (topicoJaRegistrado.isPresent()) {
-            System.out.println("Já existe tópico com mesmo título e mensagem, cadastre outro título ou mensagem");
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.badRequest().body("Já existe tópico com mesmo título e mensagem, cadastre outro título ou mensagem");
         } else {
             var topico = new Topico(dados);
             repository.save(topico);
