@@ -45,43 +45,26 @@ public class TopicoController {
     @PutMapping
     @Transactional
     public ResponseEntity atualizar(@RequestBody @Valid DadosAtualizacaoTopico dados) {
-        Optional<Topico> topicoExiste = repository.findById(dados.id());
-        if (topicoExiste.isPresent()) {
             var topico = repository.getReferenceById(dados.id());
             topico.atualizarInformacoes(dados);
             return ResponseEntity.ok(new DadosDetalhamentoTopico(topico));
-        } else {
-            System.out.println("Não existe um tópico com esse ID, tente outro.");
-            return ResponseEntity.notFound().build();
-        }
 
     }
 
     @DeleteMapping("/{id}")
     @Transactional
     public ResponseEntity excluir(@PathVariable Long id) {
-        Optional<Topico> topicoExiste = repository.findById(id);
-        if (topicoExiste.isPresent()) {
+
             var topico = repository.getReferenceById(id);
             topico.excluir();
             return ResponseEntity.noContent().build();
-        } else {
-            System.out.println("Nada foi excluído, não existe um tópico com esse ID, tente outro.");
-            return ResponseEntity.notFound().build();
-        }
+
     }
 
     @GetMapping("/{id}")
     public ResponseEntity detalhamentoTopico(@PathVariable Long id) {
-
-        Optional<Topico> topicoExiste = repository.findById(id);
-        if (topicoExiste.isPresent()) {
             var topico = repository.getReferenceById(id);
             return ResponseEntity.ok(new DadosDetalhamentoTopico(topico));
-        } else {
-            System.out.println("Nada foi excluído, não existe um tópico com esse ID, tente outro.");
-            return ResponseEntity.notFound().build();
-        }
     }
 
 }
