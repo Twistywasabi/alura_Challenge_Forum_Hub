@@ -44,26 +44,31 @@ public class TopicoController {
     @PutMapping
     @Transactional
     public ResponseEntity atualizar(@RequestBody @Valid DadosAtualizacaoTopico dados) {
+
+        Optional<Topico> topicoJaRegistrado = repository.findByTituloAndMensagemContainingIgnoreCase(dados.titulo(), dados.mensagem());
+        if (topicoJaRegistrado.isPresent()) {
+            return ResponseEntity.badRequest().body("Já existe tópico com mesmo título e mensagem, Atualize o tópico com outro título ou mensagem");
+        } else {
             var topico = repository.getReferenceById(dados.id());
             topico.atualizarInformacoes(dados);
             return ResponseEntity.ok(new DadosDetalhamentoTopico(topico));
-
+        }
     }
 
     @DeleteMapping("/{id}")
     @Transactional
     public ResponseEntity excluir(@PathVariable Long id) {
 
-            var topico = repository.getReferenceById(id);
-            topico.excluir();
-            return ResponseEntity.noContent().build();
+        var topico = repository.getReferenceById(id);
+        topico.excluir();
+        return ResponseEntity.noContent().build();
 
     }
 
     @GetMapping("/{id}")
     public ResponseEntity detalhamentoTopico(@PathVariable Long id) {
-            var topico = repository.getReferenceById(id);
-            return ResponseEntity.ok(new DadosDetalhamentoTopico(topico));
+        var topico = repository.getReferenceById(id);
+        return ResponseEntity.ok(new DadosDetalhamentoTopico(topico));
     }
 
 }
